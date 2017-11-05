@@ -25,9 +25,9 @@ public:
 
 	void push(T const &);//strong;
 
-	void pop();//strong;
+	std::shared_ptr<T> pop();//strong;
 	
-	T top();//strong;
+	//T top();//strong;
 
 	bool empty() const;//noexcept;
 
@@ -50,9 +50,11 @@ private:
 template <typename T>
 void stack<T>::swap(stack<T>& other)
 {
+	other.mutex_.lock();
 	std::swap(array_, other.array_);
 	std::swap(array_size_, other.array_size_);
 	std::swap(count_, other.count_);
+	other.mutex_.unlock();
 }
 
 template <typename T>
@@ -74,24 +76,22 @@ stack<T>::~stack()
 template<typename T>
 stack<T>::stack(const stack<T>& other) 
 {
-	mutex_.lock();
+	std::lock_guard<std::mutex> lock(other.mutex_);
 	array_size_ = other.array_size_;
 	count_ = other.count_;
 	array_ = new T[count_];
 	std::copy(other.array_, other.array_ + count_, array_);
-	mutex_.unlock();
 }
 
 template<typename T>
 stack<T>& stack<T>::operator=(stack<T> const& other)
 {
-	mutex_.lock();
+	std::lock_guard<std::mutex> lock(other.mutex_);
 	if (this != &other) 
 	{
 		stack(other).swap(*this);
 	}
 	return *this;
-	mutex_.unlock();
 }
 
 template <typename T>
@@ -115,21 +115,21 @@ void stack<T>::push(T const & value)
 	mutex_.unlock();
 }
 
-
 template <typename T>
-void stack<T>::pop()
+auto stack<T>::pop() -> std::shared_ptr<T>
 {
-	mutex_.lock();
+	std::lock_guard<std::mutex> lock(mutex_);
 	if (empty())
 	{
 		throw std::logic_error( "Stack is empty!");
 	}
-	else
-		count_--;
-	mutex_.unlock();
+	if (!empty())
+		--count_;
+	auto top = std::make_shared<T>(*array_);
+	return top;
 }
 
-template <typename T>
+/*template <typename T>
 T stack<T>::top()
 {
 	mutex_.lock();
@@ -139,38 +139,33 @@ T stack<T>::top()
 	}
 	return array_[count_ - 1];
 	mutex_.unlock();
-}
+}*/
 
 template <typename T>
 bool stack<T>::empty() const 
 {
-	mutex_.lock();
 	return (count_ == 0);
-	mutex_.unlock();
 }
 
 template <typename T>
 size_t stack<T>::count() const
 {
-	mutex_.lock();
+	std::lock_guard<std::mutex> lock(mutex_);
 	return(count_);
-	mutex_.unlock();
 	
 }
 
 template<typename T>
 void stack<T>::printall() const
 {
-	mutex_.lock();
+	std::lock_guard<std::mutex> lock(mutex_);
 	for (int i = 0; i < count_; i++)
 		std::cout << array_[i];
-	mutex_.unlock();
 }
 
 template<typename T>
 void stack<T>::print()
 {
-	mutex_.lock();
+	std::lock_guard<std::mutex> lock(mutex_);
 	std::cout << array_[count_ - 1];
-	mutex_.unlock();
 }
