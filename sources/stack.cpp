@@ -22,9 +22,9 @@ void consumer(stack<int> &Stack)
 		}
 		catch (std::logic_error)
 		{
-			std::this_thread::sleep_for(std::chrono::seconds(std::rand() % (4) + 1));
+			std::this_thread::sleep_for(std::chrono::seconds(std::rand() % (3) + 2));
 		}
-		std::this_thread::sleep_for(std::chrono::seconds(std::rand() % (4) + 1));
+		std::this_thread::sleep_for(std::chrono::seconds(std::rand() % (3) + 2));
 	}
 }
 
