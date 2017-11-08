@@ -93,7 +93,6 @@ stack<T>::stack(const stack<T>& other)
 template<typename T>
 stack<T>& stack<T>::operator=(stack<T> const& other)
 {
-	std::lock_guard<std::mutex> lock(other.mutex_);
 	if (this != &other) 
 	{
 		stack(other).swap(*this);
@@ -114,11 +113,20 @@ void stack<T>::push(T const & value)
 	{
 		array_size_ = array_size_ * 2;
 		T * new_array = new T[array_size_]();
+		try
+		{
 		std::copy(array_, array_ + count_, new_array);
+		}
+		catch(...)
+		{
+			   delete[];
+			   throw;
+		}
 		delete[] array_;
 		array_ = new_array;
 	}
-	array_[count_++] = value;
+	array_[count_] = value;
+	++count_;
 }
 
 template <typename T>
@@ -129,7 +137,7 @@ auto stack<T>::pop() -> std::shared_ptr<T>
 	{
 		throw std::logic_error( "Stack is empty!");
 	}
-	auto top = std::make_shared<T>(*(array_+count_-1));
+	auto top = std::make_shared<T>(array_[count_ - 1]);
 	--count_;
 	return top;
 }
@@ -151,7 +159,7 @@ template <typename T>
 size_t stack<T>::count() const
 {
 	std::lock_guard<std::mutex> lock(mutex_);
-	return(count_);
+	return count_;
 	
 }
 
