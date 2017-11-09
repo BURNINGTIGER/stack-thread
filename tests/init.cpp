@@ -38,8 +38,8 @@ SCENARIO("operator=", "[operator]") {
 
 }
 
-SCENARIO("empty", "[empty]") {
+/*SCENARIO("empty", "[empty]") {
 	stack<int> st;
 	st.empty();
 	REQUIRE(st.empty() == 1);
-}
+}*/
