@@ -119,7 +119,7 @@ void stack<T>::push(T const & value)
 		}
 		catch(...)
 		{
-			   delete[];
+			   delete[] array_;
 			   throw;
 		}
 		delete[] array_;
