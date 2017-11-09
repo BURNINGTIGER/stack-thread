@@ -2,6 +2,10 @@
 #include <stdexcept>
 #include <algorithm>
 #include <mutex>
+#include <utility>
+#include <new>
+#include <thread>
+#include <memory>
 
 template <typename T>
 
